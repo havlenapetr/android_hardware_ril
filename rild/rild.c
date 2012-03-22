@@ -37,6 +37,7 @@
 
 #define LIB_PATH_PROPERTY   "rild.libpath"
 #define LIB_ARGS_PROPERTY   "rild.libargs"
+#define LIB_ROOT_PROPERTY   "rild.preserveroot"
 #define MAX_LIB_ARGS        16
 
 static void usage(const char *argv0)
@@ -105,6 +106,7 @@ int main(int argc, char **argv)
     const RIL_RadioFunctions *(*rilInit)(const struct RIL_Env *, int, char **);
     const RIL_RadioFunctions *funcs;
     char libPath[PROPERTY_VALUE_MAX];
+    char preserveRoot[PROPERTY_VALUE_MAX];
     unsigned char hasLibArgs = 0;
 
     int i;
@@ -240,7 +242,11 @@ int main(int argc, char **argv)
     }
 OpenLib:
 #endif
-    switchUser();
+    /* check whether we must switch user or not */
+    property_get(LIB_ROOT_PROPERTY, preserveRoot, "");
+    if(strcmp(preserveRoot, "true") != 0) {
+        switchUser();
+    }
 
     dlHandle = dlopen(rilLibPath, RTLD_NOW);
 
